@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS: ChronosPluginSettings = {
 	clickToUse: false,
 	roundRanges: false,
 	useUtc: true,
+	optInAi: false,
 };
 
 export default class ChronosPlugin extends Plugin {
@@ -557,6 +558,24 @@ class ChronosPluginSettingTab extends PluginSettingTab {
 			text: "AI settings",
 			cls: "chronos-setting-header",
 		});
+
+
+	new Setting(containerEl)
+			.setName("Opt-in to GenAI features")
+			.setDesc(
+				"Change me",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.optInAi)
+					.onChange(async (value) => {
+						new Notice(
+							"We changed the AI opt-in settings!",
+						);
+						this.plugin.settings.optInAi = value;
+						await this.plugin.saveSettings();
+					}),
+			);
 
 		new Setting(containerEl)
 			.setName("OpenAI API key")
