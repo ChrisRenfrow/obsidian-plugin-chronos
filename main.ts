@@ -566,26 +566,24 @@ class ChronosPluginSettingTab extends PluginSettingTab {
 		});
 
 
-	new Setting(containerEl)
-			.setName("Opt-in to GenAI features")
+		new Setting(containerEl)
+			.setName("Opt-in")
 			.setDesc(
-				"Change me",
+				"Toggles commands and settings for AI timeline generation.",
 			)
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.optInAi)
 					.onChange(async (value) => {
-						new Notice(
-							"We changed the AI opt-in settings!",
-						);
 						this.plugin.settings.optInAi = value;
 						await this.plugin.saveSettings();
+						// Call display to re-evaluate display conditionals for AI settings
+						this.display()
 					}),
 			);
 
 		new Setting(containerEl)
 			.setName("OpenAI API key")
-			.setDesc("(optional) For generating timelines with AI")
 			.addText((text) =>
 				text
 					.setPlaceholder("Enter your OpenAI API Key")
@@ -605,7 +603,9 @@ class ChronosPluginSettingTab extends PluginSettingTab {
 						}
 						await this.plugin.saveSettings();
 					}),
-			);
+			)
+			.setClass("ai-setting")
+			.setDisabled(!this.plugin.settings.optInAi);
 
 		containerEl.createEl("h2", {
 			text: "Cheatsheet",
