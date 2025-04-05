@@ -81,13 +81,11 @@ export default class ChronosPlugin extends Plugin {
 			id: "generate-timeline-ai",
 			name: "Generate timeline with AI",
 			editorCheckCallback: (checking, editor, _view) => {
-				if (this.settings.optInAi) {
-					if (!checking) {
-						this._generateTimelineWithAi(editor);
-					}
-					return true;
+				if (checking) {
+					return this.settings.optInAi;
+				} else {
+					this._generateTimelineWithAi(editor);
 				}
-				return false;
 			},
 		});
 	}
