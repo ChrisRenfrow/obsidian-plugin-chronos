@@ -578,7 +578,7 @@ class ChronosPluginSettingTab extends PluginSettingTab {
 			)
 			.addToggle((toggle) =>
 				toggle
-					.setValue(this.plugin.settings.optInAi)
+					.setValue(this.plugin.settings.optInAi || false)
 					.onChange(async (value) => {
 						this.plugin.settings.optInAi = value;
 						await this.plugin.saveSettings();
