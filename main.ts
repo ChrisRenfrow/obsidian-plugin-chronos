@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS: ChronosPluginSettings = {
 	clickToUse: false,
 	roundRanges: false,
 	useUtc: true,
+  useAI: true,
 };
 
 export default class ChronosPlugin extends Plugin {
@@ -39,7 +40,8 @@ export default class ChronosPlugin extends Plugin {
 	async onload() {
 		console.log("Loading Chronos Timeline Plugin...");
 
-		this.settings = (await this.loadData()) || DEFAULT_SETTINGS;
+    this.settings = (await this.loadData()) || DEFAULT_SETTINGS;
+
 		this.addSettingTab(new ChronosPluginSettingTab(this.app, this));
 
 		this.registerEvent(
@@ -79,8 +81,12 @@ export default class ChronosPlugin extends Plugin {
 		this.addCommand({
 			id: "generate-timeline-ai",
 			name: "Generate timeline with AI",
-			editorCallback: (editor, _view) => {
-				this._generateTimelineWithAi(editor);
+			editorCheckCallback: (checking, editor, _view) => {
+				if (checking) {
+					return this.settings.useAI;
+				} else {
+					this._generateTimelineWithAi(editor);
+				}
 			},
 		});
 	}
@@ -558,9 +564,25 @@ class ChronosPluginSettingTab extends PluginSettingTab {
 			cls: "chronos-setting-header",
 		});
 
+
+		new Setting(containerEl)
+			.setName("Use AI features")
+			.setDesc(
+				"Toggles commands and settings for AI timeline generation.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.useAI)
+					.onChange(async (value) => {
+						this.plugin.settings.useAI = value;
+						await this.plugin.saveSettings();
+						// Call display to re-evaluate display conditionals for AI settings
+						this.display()
+					}),
+			);
+
 		new Setting(containerEl)
 			.setName("OpenAI API key")
-			.setDesc("(optional) For generating timelines with AI")
 			.addText((text) =>
 				text
 					.setPlaceholder("Enter your OpenAI API Key")
@@ -580,7 +602,9 @@ class ChronosPluginSettingTab extends PluginSettingTab {
 						}
 						await this.plugin.saveSettings();
 					}),
-			);
+			)
+			.setClass("ai-setting")
+			.setDisabled(!this.plugin.settings.useAI);
 
 		containerEl.createEl("h2", {
 			text: "Cheatsheet",
