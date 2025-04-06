@@ -31,7 +31,6 @@ const DEFAULT_SETTINGS: ChronosPluginSettings = {
 	clickToUse: false,
 	roundRanges: false,
 	useUtc: true,
-	optInAi: false,
 };
 
 export default class ChronosPlugin extends Plugin {
@@ -40,7 +39,15 @@ export default class ChronosPlugin extends Plugin {
 	async onload() {
 		console.log("Loading Chronos Timeline Plugin...");
 
-		this.settings = (await this.loadData()) || DEFAULT_SETTINGS;
+    // set opt-in field based on the existence of the api key to migrate older users
+    let storedSettings = (await this.loadData()) || DEFAULT_SETTINGS;
+
+    if (storedSettings.optInAi === undefined) {
+      storedSettings.optInAi = (storedSettings.key === undefined) ? false : true
+    }
+
+		this.settings = storedSettings;
+
 		this.addSettingTab(new ChronosPluginSettingTab(this.app, this));
 
 		this.registerEvent(
